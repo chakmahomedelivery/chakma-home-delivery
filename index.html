@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<meta name="description" content="Order local food and fresh vegetables for delivery in your village and nearby town.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Chakma Home Delivery</title>
+<style>
+:root{--green:#14532d;--green2:#166534;--cream:#f8faf5;--orange:#f97316;--ink:#17231b;--muted:#647067;--line:#e2e8e2}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--ink)}
+header{background:linear-gradient(135deg,#14532d,#238044);color:white;padding:22px 16px 28px}.wrap{max-width:1000px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:21px;font-weight:850;letter-spacing:-.5px}.pill{background:#ffffff20;border:1px solid #ffffff45;border-radius:999px;padding:7px 10px;font-size:12px}
+h1{font-size:clamp(26px,5vw,42px);line-height:1.08;margin:25px 0 10px;max-width:650px}header p{margin:0;color:#e2f5e7;max-width:620px}
+main{padding:18px 14px 90px}.search{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;font:inherit;background:white;margin-bottom:12px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 14px}.tab{border:1px solid var(--line);background:white;border-radius:999px;padding:9px 14px;white-space:nowrap;font-weight:650;color:#344238}.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.notice{font-size:13px;color:var(--muted);margin:0 0 18px}h2{font-size:21px;margin:16px 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.item{background:white;border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;min-height:185px;box-shadow:0 2px 7px #14291a08}
+.emoji{font-size:34px;background:#f0f7ef;border-radius:13px;width:58px;height:58px;display:grid;place-items:center;margin-bottom:10px}.item h3{margin:0 0 5px;font-size:17px}.desc{font-size:13px;color:var(--muted);margin:0 0 12px;flex:1}.bottom{display:flex;justify-content:space-between;align-items:center;gap:8px}.price{font-weight:800;font-size:17px}
+button{font:inherit;cursor:pointer;border:0;border-radius:11px;padding:9px 13px;font-weight:750}.add{background:var(--green);color:white}.add:hover{background:var(--green2)}
+.cart{position:fixed;bottom:12px;left:12px;right:12px;max-width:976px;margin:auto;background:#17231b;color:white;border-radius:16px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 28px #0003;z-index:3}.cart small{display:block;color:#d4e4d7}.cart button{background:#fb923c;color:#261405}
+dialog{border:0;border-radius:20px;width:min(94vw,560px);padding:0;box-shadow:0 15px 60px #0004}dialog::backdrop{background:#10201699}.modalhead{padding:18px 20px;background:var(--green);color:white}.modalhead h2{margin:0}.modalbody{padding:18px 20px;max-height:72vh;overflow:auto}.field{display:block;margin:12px 0;font-size:14px;font-weight:700}.field input,.field textarea,.field select{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #cbd5cc;border-radius:10px;font:inherit}.cartline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.qty button{padding:3px 9px;background:#edf5ed}.actions{display:flex;gap:8px;margin-top:16px}.actions button{flex:1}.primary{background:var(--green);color:white}.secondary{background:#edf1ed}.fine{font-size:12px;color:var(--muted);line-height:1.5}.empty{color:var(--muted);padding:10px 0}footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 28px}
+@media(min-width:700px){header{padding:28px 24px 36px}main{padding:24px 24px 100px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><div class="brand">🥡 Chakma Home Delivery</div><div class="pill">Village + Nearby Town</div></div>
+  <h1>Your local favourites, delivered to your door.</h1>
+  <p>Order chowmin, momo, chicken lollipop and fresh vegetables. Add items to your cart and send your order by WhatsApp.</p>
+</div></header>
+<main class="wrap">
+  <input id="search" class="search" placeholder="Search chowmin, momo, vegetables..." aria-label="Search menu">
+  <div class="tabs" id="tabs"><button class="tab active" data-cat="All">All items</button><button class="tab" data-cat="Food">Fast food</button><button class="tab" data-cat="Vegetables">Vegetables</button></div>
+  <p class="notice">Prices marked “Set price” must be updated before taking real orders. Confirm availability and delivery charges by WhatsApp.</p>
+  <h2 id="sectionTitle">Menu</h2><div class="grid" id="menu"></div>
+</main>
+<div class="cart"><div><strong>🛒 <span id="cartCount">0</span> items</strong><small id="cartTotal">Subtotal: Price not set</small></div><button onclick="openCart()">View cart & order →</button></div>
+<dialog id="checkout"><div class="modalhead"><h2>Your order</h2></div><div class="modalbody">
+<div id="cartLines"></div><p><strong id="modalTotal"></strong></p>
+<label class="field">Your name<input id="customerName" placeholder="Enter your name" autocomplete="name"></label>
+<label class="field">Phone number<input id="customerPhone" placeholder="10-digit mobile number" inputmode="tel"></label>
+<label class="field">Village / town and full delivery address<textarea id="address" rows="2" placeholder="House, locality, village/town"></textarea></label>
+<label class="field">Payment method<select id="payment"><option>Cash on delivery</option><option>UPI (confirm with seller)</option></select></label>
+<label class="field">Extra instructions (optional)<textarea id="notes" rows="2" placeholder="Spice level, landmark, etc."></textarea></label>
+<p class="fine">Your order is only a request until the seller confirms items, total and delivery fee. Do not send PINs, passwords or OTPs.</p>
+<div class="actions"><button class="secondary" onclick="document.getElementById('checkout').close()">Continue shopping</button><button class="primary" onclick="sendOrder()">Send order</button></div>
+<p class="fine">Orders open WhatsApp with a prepared message. Review it and tap Send. The seller must reply to confirm.</p>
+</div></dialog>
+<footer>Chakma Home Delivery • Local food and vegetable delivery<br>Prices and delivery availability must be confirmed by the seller.</footer>
+<script>
+const WHATSAPP_NUMBER = "918798567790"; // India country code 91 + the supplied 10-digit number. Digits only.
+const products = [
+ {id:1,name:"Veg Chowmin",cat:"Food",emoji:"🍜",desc:"Freshly cooked vegetable noodles",price:null,unit:"per plate"},
+ {id:2,name:"Chicken Chowmin",cat:"Food",emoji:"🍜",desc:"Noodles with chicken",price:null,unit:"per plate"},
+ {id:3,name:"Veg Momo",cat:"Food",emoji:"🥟",desc:"Steamed vegetable momos",price:null,unit:"portion; add quantity details to description"},
+ {id:4,name:"Chicken Momo",cat:"Food",emoji:"🥟",desc:"Steamed chicken momos",price:null,unit:"portion; add quantity details to description"},
+ {id:5,name:"Chicken Lollipop",cat:"Food",emoji:"🍗",desc:"Crispy chicken snack",price:null,unit:"portion; specify pieces"},
+ {id:6,name:"Potatoes",cat:"Vegetables",emoji:"🥔",desc:"Fresh potatoes",price:null,unit:"per kg"},
+ {id:7,name:"Tomatoes",cat:"Vegetables",emoji:"🍅",desc:"Fresh tomatoes",price:null,unit:"per kg"},
+ {id:8,name:"Onions",cat:"Vegetables",emoji:"🧅",desc:"Everyday cooking onions",price:null,unit:"per kg"},
+ {id:9,name:"Green chillies",cat:"Vegetables",emoji:"🌶️",desc:"Fresh green chillies",price:null,unit:"per 250 g"},
+ {id:10,name:"Seasonal vegetables",cat:"Vegetables",emoji:"🥬",desc:"Ask about today's available greens",price:null,unit:"per bundle"}
+];
+let cart={}, activeCat="All";
+const menu=document.getElementById("menu");
+function money(n){return "₹"+Number(n).toLocaleString("en-IN")}
+function priceLabel(p){return p.price===null?"Set price":money(p.price)+" / "+p.unit}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ const filtered=products.filter(p=>(activeCat==="All"||p.cat===activeCat)&&(p.name+" "+p.desc).toLowerCase().includes(q));
+ menu.innerHTML=filtered.map(p=>`<article class="item"><div class="emoji">${p.emoji}</div><h3>${p.name}</h3><p class="desc">${p.desc}<br><small>${p.unit}</small></p><div class="bottom"><span class="price">${priceLabel(p)}</span><button class="add" onclick="add(${p.id})">+ Add</button></div></article>`).join("")||'<p class="empty">No items found. Try another search.</p>';
+ document.getElementById("sectionTitle").textContent=activeCat==="All"?"Our menu":activeCat;
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.cat===activeCat));
+ updateCart();
+}
+function add(id){const p=products.find(x=>x.id===id);if(p.price===null){alert("This item’s price has not been set yet. Please contact the seller before ordering.");return}cart[id]=(cart[id]||0)+1;updateCart()}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();openCart()}
+function total(){return products.reduce((s,p)=>s+(p.price===null?0:p.price)*(cart[p.id]||0),0)}
+function count(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+function updateCart(){document.getElementById("cartCount").textContent=count();const allPriced=products.filter(p=>cart[p.id]).every(p=>p.price!==null);document.getElementById("cartTotal").textContent=allPriced?"Subtotal: "+money(total()):"Set item prices first"}
+function openCart(){
+ const box=document.getElementById("cartLines"),chosen=products.filter(p=>cart[p.id]);
+ box.innerHTML=chosen.length?chosen.map(p=>`<div class="cartline"><div><strong>${p.name}</strong><br><small>${money(p.price)} / ${p.unit}</small></div><div class="qty"><button onclick="change(${p.id},-1)">−</button> ${cart[p.id]} <button onclick="change(${p.id},1)">+</button></div><strong>${money(p.price*cart[p.id])}</strong></div>`).join(""):'<p class="empty">Your cart is empty. Add items with prices set.</p>';
+ document.getElementById("modalTotal").textContent="Subtotal: "+money(total())+" (delivery fee not included)";
+ if(!document.getElementById("checkout").open)document.getElementById("checkout").showModal();
+}
+function sendOrder(){
+ if(!count()){alert("Your cart is empty, or item prices have not been set. Please set prices and add items.");return}
+ if(products.some(p=>cart[p.id]&&p.price===null)){alert("Please set a price for every item in your cart.");return}
+ const name=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.trim(),address=document.getElementById("address").value.trim();
+ if(!name||!phone||!address){alert("Please enter your name, phone number and delivery address.");return}
+ const phoneDigits=phone.replace(/\D/g,"");if(phoneDigits.length<10||phoneDigits.length>13){alert("Please check the customer phone number.");return}
+ const lines=products.filter(p=>cart[p.id]).map(p=>`${p.name} x ${cart[p.id]} = ${money(p.price*cart[p.id])}`);
+ const message=`NEW ORDER REQUEST\nBusiness: Chakma Home Delivery\nCustomer name: ${name}\nCustomer phone: ${phone}\nDelivery address: ${address}\n\nItems:\n${lines.join("\n")}\n\nSubtotal: ${money(total())}\nDelivery fee: Please confirm\nPayment preference: ${document.getElementById("payment").value}\nInstructions: ${document.getElementById("notes").value.trim()||"None"}\n\nPlease confirm availability, final total and delivery time.`;
+ window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(message),"_blank","noopener");
+}
+document.getElementById("search").addEventListener("input",render);
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{activeCat=b.dataset.cat;render()}));
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}))}
+render();
+</script>
+</body></html>
